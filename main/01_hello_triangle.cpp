@@ -28,6 +28,10 @@ public:
 
     }
 
+    void UpdateUi(seconds dt) override {
+
+    }
+
 };
 
 int main(int argc, char** argv)

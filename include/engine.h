@@ -9,13 +9,14 @@
 class Engine
 {
 public:
-    using seconds = std::chrono::seconds;
+    using seconds = std::chrono::duration<float, std::ratio<1>>;
     void Init();
     void StartLoop();
     void AddProgram(RenderProgram* renderProgram);
 private:
 
     void Update(seconds dt);
+    void UpdateUi(seconds dt);
     void Destroy();
     void OnEvent(const SDL_Event& event);
     SDL_Window * window = nullptr;

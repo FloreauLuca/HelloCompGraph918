@@ -4,6 +4,9 @@
 #include <iostream>
 #include "engine.h"
 #include "GL/glew.h"
+#include <imgui.h>
+#include <imgui_impl_sdl.h>
+#include <imgui_impl_opengl3.h>
 
 void Engine::Init()
 {
@@ -36,6 +39,21 @@ void Engine::Init()
     {
         std::cerr << glewGetErrorString(glewInit()) << '\n';
     }
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    (void) io;
+
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Keyboard Gamepad
+
+    // Setup Dear ImGui style
+    //ImGui::StyleColorsDark();
+    ImGui::StyleColorsClassic();
+    ImGui_ImplSDL2_InitForOpenGL(window, glRenderContext);
+    ImGui_ImplOpenGL3_Init("#version 300 es");
 }
 static std::chrono::time_point<std::chrono::system_clock> start;
 void Engine::StartLoop()
@@ -58,9 +76,19 @@ void Engine::StartLoop()
 
 void Engine::OnEvent(const SDL_Event &event)
 {
-    if(event.type == SDL_EventType::SDL_QUIT)
+    switch (event.type)
     {
-        isRunning = false;
+        case SDL_QUIT:
+            isRunning = false;
+            break;
+        case SDL_WINDOWEVENT:
+            if(event.window.event == SDL_WINDOWEVENT_RESIZED)
+            {
+                windowWidth = event.window.data1;
+                windowHeight = event.window.data2;
+                glViewport(0,0, windowWidth, windowHeight);
+            }
+            break;
     }
     for(auto* program : programs)
     {
@@ -81,6 +109,8 @@ void Engine::Update(seconds dt)
     {
         program->Update(dt);
     }
+    UpdateUi(dt);
+
     SDL_GL_SwapWindow(window);
 }
 
@@ -95,6 +125,24 @@ void Engine::Destroy()
     {
         program->Destroy();
     }
+    ImGui_ImplOpenGL3_Shutdown();
     SDL_GL_DeleteContext(glRenderContext);
     SDL_DestroyWindow(window);
+}
+
+void Engine::UpdateUi(Engine::seconds dt)
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame(window);
+    ImGui::NewFrame();
+
+    ImGui::Begin("Engine Window");
+    ImGui::Text("FPS: %2.2f", 1.0f/dt.count());
+    ImGui::End();
+    for(auto* program : programs)
+    {
+        program->UpdateUi(dt);
+    }
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
