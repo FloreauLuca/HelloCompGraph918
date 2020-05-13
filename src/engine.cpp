@@ -54,6 +54,8 @@ void Engine::Init()
     ImGui::StyleColorsClassic();
     ImGui_ImplSDL2_InitForOpenGL(window, glRenderContext);
     ImGui_ImplOpenGL3_Init("#version 300 es");
+
+    glViewport(0, 0, windowWidth, windowHeight);
 }
 static std::chrono::time_point<std::chrono::system_clock> start;
 void Engine::StartLoop()
