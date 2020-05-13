@@ -5,6 +5,8 @@ project(HelloCompGraph)
 file(GLOB_RECURSE COMMON_SRC include/*.h src/*.cpp)
 add_library(COMMON STATIC ${COMMON_SRC})
 target_include_directories(COMMON PUBLIC "include/")
+target_compile_definitions(COMMON PUBLIC IMGUI_IMPL_OPENGL_ES3)
+target_compile_definitions(COMMON PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLEW)
 
 find_package(SDL2 CONFIG REQUIRED)
 target_link_libraries(COMMON PUBLIC SDL2::SDL2 SDL2::SDL2main)
