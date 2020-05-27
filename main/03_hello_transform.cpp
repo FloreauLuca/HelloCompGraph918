@@ -10,7 +10,6 @@
 #include <GL/glew.h>
 
 
-
 class HelloTriangleProgram : public RenderProgram
 {
 public:
@@ -21,18 +20,13 @@ public:
 		     0.5f, -0.5f, 0.0f, //bottom right
 		     0.0f,  0.5f, 0.0f //top
         };
-        float colors[] = {
-            -0.5f, -0.5f, 0.0f, //bottom left
-             0.5f, -0.5f, 0.0f, //bottom right
-             0.0f,  0.5f, 0.0f //top
-        };
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
 
         glGenBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //Link with shader
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
     	//Compile and link shaders
@@ -49,10 +43,8 @@ public:
                 std::istreambuf_iterator<char>());
             vertexShaderFile.close();
             auto* fileContentPtr = fileContent.c_str();
-
             glShaderSource(vertexShader, 1, &fileContentPtr, NULL);
             glCompileShader(vertexShader);
-
             glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
             if (!success)
             {
@@ -75,10 +67,8 @@ public:
                 std::istreambuf_iterator<char>());
             fragShaderFile.close();
             auto* fileContentPtr = fileContent.c_str();
-            
             glShaderSource(fragShader, 1, &fileContentPtr, NULL);
             glCompileShader(fragShader);
-
             glGetShaderiv(fragShader, GL_COMPILE_STATUS, &success);
             if (!success)
             {

@@ -21,8 +21,8 @@ private:
     void OnEvent(const SDL_Event& event);
     SDL_Window * window = nullptr;
     std::vector<RenderProgram*> programs;
-    int windowWidth = 1280;
-    int windowHeight = 720;
+    int windowWidth = 800;
+    int windowHeight = 800;
     bool isRunning = true;
     SDL_GLContext glRenderContext;
 };
