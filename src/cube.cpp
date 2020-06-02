@@ -1,110 +1,92 @@
-////
-//// Created by unite on 12/05/2020.
-////
-//#include "shader.h"
-//
-//
-//#include <fstream>
-//#include <glm/gtc/type_ptr.hpp>
-//#include <iostream>
-//
-//Shader::Shader(const char* vertexPath, const char* fragmentPath)
-//{
-//    // 1. retrieve the vertex/fragment source code from filePath
-//    std::string vertexCode;
-//    std::string fragmentCode;
-//    std::ifstream vShaderFile;
-//    std::ifstream fShaderFile;
-//    // ensure ifstream objects can throw exceptions:
-//    vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-//    fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-//    try
-//    {
-//        // open files
-//        vShaderFile.open(vertexPath);
-//        fShaderFile.open(fragmentPath);
-//        std::stringstream vShaderStream, fShaderStream;
-//        // read file's buffer contents into streams
-//        vShaderStream << vShaderFile.rdbuf();
-//        fShaderStream << fShaderFile.rdbuf();
-//        // close file handlers
-//        vShaderFile.close();
-//        fShaderFile.close();
-//        // convert stream into string
-//        vertexCode = vShaderStream.str();
-//        fragmentCode = fShaderStream.str();
-//    }
-//    catch (std::ifstream::failure e)
-//    {
-//        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
-//    }
-//    const char* vShaderCode = vertexCode.c_str();
-//    const char* fShaderCode = fragmentCode.c_str();
-//
-//    // 2. compile shaders
-//    unsigned int vertex, fragment;
-//    int success;
-//    char infoLog[512];
-//
-//    // vertex Shader
-//    vertex = glCreateShader(GL_VERTEX_SHADER);
-//    glShaderSource(vertex, 1, &vShaderCode, NULL); // shader, count, data, length
-//    glCompileShader(vertex);
-//    // print compile errors if any
-//    glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-//    if (!success)
-//    {
-//        glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-//        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-//    };
-//
-//    // vertex Shader
-//    fragment = glCreateShader(GL_FRAGMENT_SHADER);
-//    glShaderSource(fragment, 1, &fShaderCode, NULL);  // shader, count, data, length
-//    glCompileShader(fragment);
-//    // print compile errors if any
-//    glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-//    if (!success)
-//    {
-//        glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-//        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-//    };
-//    // shader Program
-//    ID = glCreateProgram();
-//    glAttachShader(ID, vertex);
-//    glAttachShader(ID, fragment);
-//    glLinkProgram(ID);
-//    // print linking errors if any
-//    glGetProgramiv(ID, GL_LINK_STATUS, &success);
-//    if (!success)
-//    {
-//        glGetProgramInfoLog(ID, 512, NULL, infoLog);
-//        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-//    }
-//
-//    // delete the shaders as they're linked into our program now and no longer necessery
-//    glDeleteShader(vertex);
-//    glDeleteShader(fragment);
-//}
-//
-//void Shader::use()
-//{
-//    glUseProgram(ID);
-//}
-//
-//void Shader::SetBool(const std::string& name, bool value) const
-//{
-//    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
-//}
-//void Shader::SetInt(const std::string& name, int value) const
-//{
-//    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
-//}
-//void Shader::SetFloat(const std::string& name, float value) const
-//{
-//    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
-//}
-//
-//void Shader::SetMat4(const std::string& name, glm::mat4 value) const {
-//    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
-//}
+#include "cube.h"
+#include <GL/glew.h>
+
+RenderCube::RenderCube()
+{
+}
+
+void RenderCube::Init()
+{
+	float vertices[] = {
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f,
+
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+
+		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f,
+
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f
+	};
+
+	glGenVertexArrays(1, &vao_);
+	glBindVertexArray(vao_);
+
+	glGenBuffers(1, &vbo_); //size, out bufferID
+
+
+	glBindVertexArray(vao_);
+	// 0. copy our vertices array in a buffer for OpenGL to use
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_); // type, bufferID
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// type, size, data, usage
+	// 1. then set the vertex attributes pointers
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	//index(location), size(dim), type, normalize, stride(next point), pointer(offset of the first)
+	glEnableVertexAttribArray(0);
+	// color attribute
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+	                      (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+	                      (void*)(5 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+}
+
+void RenderCube::BindVao()
+{
+	glBindVertexArray(vao_);
+}
+
+void RenderCube::Render()
+{
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+}
+
+void RenderCube::Destroy()
+{
+	glDeleteBuffers(1, &vbo_);
+	glDeleteVertexArrays(1, &vao_);
+}

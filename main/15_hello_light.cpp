@@ -13,13 +13,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <GLFW/glfw3.h>
+#include <imgui.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 
 #include "shader.h"
 #include "camera.h"
-
+#include "cube.h"
+#include "texture.h"
 
 
 class HelloLightProgram : public RenderProgram
@@ -28,193 +28,195 @@ public:
 	void Init() override
 	{
 		//texture = CreateTexture("../data/image.dds");
+		cube_.Init();
+		lightCube_.Init();
+		textureDiffuse_.Init("../data/15_hello_light/leatherDiffuse.jpg");
+		textureSpecular_.Init("../data/15_hello_light/leatherSpecular.jpg");
 
-		float vertices[] = {
-			-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-			0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-			0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-			0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-			-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-			-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+		shader_ = Shader("../shaders/15_hello_light/cube.vert",
+		                "../shaders/15_hello_light/cube.frag");
 
-			-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-			0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-			0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-			0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-			-0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-			-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-
-			-0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-			-0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-			-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-			-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-			-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-			-0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-			0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-			0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-			0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-			0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-			0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-			0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-			-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-			0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-			0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-			0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-			-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-			-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-
-			-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-			0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-			0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-			0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-			-0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-			-0.5f, 0.5f, -0.5f, 0.0f, 1.0f
-		};
-		
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
-
-		glGenBuffers(1, &VBO); //size, out bufferID
-
-
-		glBindVertexArray(VAO);
-		// 0. copy our vertices array in a buffer for OpenGL to use
-		glBindBuffer(GL_ARRAY_BUFFER, VBO); // type, bufferID
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		// type, size, data, usage
-		// 1. then set the vertex attributes pointers
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		//index(location), size(dim), type, normalize, stride(next point), pointer(offset of the first)
-		glEnableVertexAttribArray(0);
-		// color attribute
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-		                      (void*)(3 * sizeof(float)));
-		glEnableVertexAttribArray(1);
-
-
-		glGenTextures(1, &texture); //num texture, ID
-		glBindTexture(GL_TEXTURE_2D, texture); //type data
-		// set the texture wrapping/filtering options (on the currently bound texture object)
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		// load and generate the texture
-		stbi_set_flip_vertically_on_load(true);
-		int width, height, nrChannels;
-		unsigned char* data = stbi_load("../data/12_hello_texture/texture.jpg", &width, &height,
-		                                &nrChannels, 0);
-		if (data)
-		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,
-			             data);
-			//type, level, internalFormat, width, height, border, format, type, data
-			glGenerateMipmap(GL_TEXTURE_2D);
-		}
-		else
-		{
-			std::cout << "Failed to load texture" << std::endl;
-		}
-
-
-		stbi_image_free(data);
-
-		shader = Shader("../shaders/14_hello_cube/texture.vert",
-		                "../shaders/14_hello_cube/texture.frag");
+		shaderLight_ = Shader("../shaders/15_hello_light/light.vert",
+		                     "../shaders/15_hello_light/light.frag");
 	}
 
 	void Update(seconds dt) override
 	{
+		timeSince_ += dt.count();
 		ProcessInput(dt);
-
-		// pass projection matrix to shader (note that in this case it could change every frame)
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)width / (float)height, 0.1f, 100.0f);
-		shader.setMat4("projection", projection);
-
-		// camera/view transformation
-		glm::mat4 view = camera.GetViewMatrix();
-		shader.setMat4("view", view);
-
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-		int modelLoc = glGetUniformLocation(shader.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		int viewLoc = glGetUniformLocation(shader.ID, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		int projectionLoc = glGetUniformLocation(shader.ID, "projection");
-		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glUseProgram(shader.ID);
+		glDepthFunc(GL_LESS);
 
-		glm::vec3 cubePositions[] = {
-			glm::vec3(0.0f,  0.0f,  0.0f),
-			glm::vec3(2.0f,  5.0f, -15.0f),
-			glm::vec3(-1.5f, -2.2f, -2.5f),
-			glm::vec3(-3.8f, -2.0f, -12.3f),
-			glm::vec3(2.4f, -0.4f, -3.5f),
-			glm::vec3(-1.7f,  3.0f, -7.5f),
-			glm::vec3(1.3f, -2.0f, -2.5f),
-			glm::vec3(1.5f,  2.0f, -2.5f),
-			glm::vec3(1.5f,  0.2f, -1.5f),
-			glm::vec3(-1.3f,  1.0f, -1.5f)
-		};
-
-		glBindVertexArray(VAO);
-		for (unsigned int i = 0; i < 10; i++)
+		glm::vec3 lightColor = glm::vec3(1.0f);
+		//lightColor.x = sin(timeSince_ * 2.0f);
+		//lightColor.y = sin(timeSince_ * 0.7f);
+		//lightColor.z = sin(timeSince_ * 1.3f);
+		//
+		lightPosition_.x = sin(timeSince_ * 2.0f);
+		lightPosition_.y = sin(timeSince_ * 0.7f);
+		lightPosition_.z = -5.0f;
 		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			shader.setMat4("model", model);
+			shader_.Use();
+			shader_.SetInt("material.diffuse", 0);
+			glActiveTexture(GL_TEXTURE0);
+			textureDiffuse_.BindTexture();
+			shader_.SetInt("material.specular", 1);
+			glActiveTexture(GL_TEXTURE1);
+			textureSpecular_.BindTexture();
+			// pass projection matrix to shader (note that in this case it could change every frame)
+			glm::mat4 projection = glm::perspective(glm::radians(camera_.Zoom),
+			                                        (float)width_ / (float)height_, 0.1f, 100.0f);
+			shader_.SetMat4("projection", projection);
 
-			glDrawArrays(GL_TRIANGLES, 0, 36);
+			// camera/view transformation
+			glm::mat4 view = camera_.GetViewMatrix();
+			shader_.SetMat4("view", view);
+
+
+			glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+			glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+			
+			shader_.SetInt("light.type", static_cast<int>(lightType_));
+			if (lightType_ == LightType::FLASHLIGHT || lightType_ == LightType::SPOTLIGHT)
+			{
+				shader_.SetVec3("light.position", camera_.Position);
+				//std::cout << std::to_string(camera_.Position.x) + " " + std::to_string(camera_.Position.y) + " " + std::to_string(camera_.Position.z) << std::endl;
+				shader_.SetVec3("light.direction", camera_.Front);
+			} else
+			{
+				shader_.SetVec3("light.position", lightPosition_);
+				//std::cout << std::to_string(lightPosition_.x) + " " + std::to_string(lightPosition_.y) + " " + std::to_string(lightPosition_.z) << std::endl;
+				shader_.SetVec3("light.direction", lightDirection_);
+			}
+			shader_.SetFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+			shader_.SetFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
+			shader_.SetFloat("light.constant", 1.0f);
+			shader_.SetFloat("light.linear", 0.09f);
+			shader_.SetFloat("light.quadratic", 0.032f);
+			shader_.SetVec3("light.ambient", ambientColor);
+			shader_.SetVec3("light.diffuse", diffuseColor);
+			shader_.SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
+			
+			shader_.SetVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+			shader_.SetVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+			shader_.SetVec3("material.specular", 0.5f, 0.5f, 0.5f);
+			shader_.SetFloat("material.shininess", 32.0f);
+			shader_.SetVec3("viewPos", camera_.Position);
+
+			cube_.BindVao();
+			for (unsigned int i = 0; i < 9; i++)
+			{
+				glm::mat4 model = glm::mat4(1.0f);
+				model = glm::translate(model, cubePositions_[i]);
+				float angle = 20.0f * i;
+				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+				shader_.SetMat4("model", model);
+				cube_.Render();
+			}
+		}
+		if (lightType_ == LightType::POINT || lightType_ == LightType::NONE)
+		{
+			shaderLight_.Use();
+			// pass projection matrix to shader (note that in this case it could change every frame)
+			glm::mat4 projection = glm::perspective(glm::radians(camera_.Zoom),
+			                                        (float)width_ / (float)height_, 0.1f, 100.0f);
+			shaderLight_.SetMat4("projection", projection);
+
+			// camera/view transformation
+			glm::mat4 view = camera_.GetViewMatrix();
+			shaderLight_.SetMat4("view", view);
+
+			shaderLight_.SetVec3("lightColor", lightColor);
+			lightCube_.BindVao();
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, lightPosition_);
+			model = glm::scale(model, glm::vec3(0.2f));
+			shaderLight_.SetMat4("model", model);
+			lightCube_.Render();
 		}
 	}
 
 	void Destroy() override
 	{
-		glDeleteProgram(shader.ID);
-		glDeleteBuffers(1, &VBO);
-		glDeleteVertexArrays(1, &VAO);
+		shader_.Destroy();
+		shaderLight_.Destroy();
+		cube_.Destroy();
+		lightCube_.Destroy();
 	}
 
 	void OnEvent(const SDL_Event& event) override
 	{
-		if (event.type == SDL_MOUSEMOTION)
+		if (event.type == SDL_MOUSEBUTTONDOWN)
 		{
-			if (firstMouse)
+			if (event.button.button == SDL_BUTTON_RIGHT)
 			{
+				rightMouse_ = true;
 				lastX = event.motion.x;
 				lastY = event.motion.y;
-				firstMouse = false;
+				firstMouse_ = false;
 			}
-
-			float xoffset = event.motion.x - lastX;
-			float yoffset = lastY - event.motion.y; // reversed since y-coordinates go from bottom to top
-
-			lastX = event.motion.x;
-			lastY = event.motion.y;
-
-			camera.ProcessMouseMovement(xoffset, yoffset);
 		}
-		//mouseMotion_ = Vec2f(event.motion.xrel, event.motion.yrel) / mouseMotionRatio_;
+
+		if (event.type == SDL_MOUSEBUTTONUP)
+		{
+			if (event.button.button == SDL_BUTTON_RIGHT)
+			{
+				rightMouse_ = false;
+			}
+		}
+		if (rightMouse_)
+		{
+			if (event.type == SDL_MOUSEMOTION)
+			{
+				if (firstMouse_)
+				{
+					lastX = event.motion.x;
+					lastY = event.motion.y;
+					firstMouse_ = false;
+				}
+
+				float xoffset = event.motion.x - lastX;
+				float yoffset = lastY - event.motion.y;
+				// reversed since y-coordinates go from bottom to top
+
+				lastX = event.motion.x;
+				lastY = event.motion.y;
+
+				camera_.ProcessMouseMovement(xoffset, yoffset);
+			}
+		}
 		if (event.type == SDL_WINDOWEVENT_RESIZED)
 		{
-			width = event.window.data1;
-			height = event.window.data2;
+			width_ = event.window.data1;
+			height_ = event.window.data2;
 		}
 	}
 
 	void UpdateUi(seconds dt) override
 	{
+		const char* items[] = { "DIRECTIONNAL", "POINT", "FLASHLIGHT", "SPOTLIGHT", "NONE"};
+		static const char* currentItem = "NONE";
+
+		if (ImGui::BeginCombo("##combo", currentItem))
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+			{
+				bool is_selected = (currentItem == items[n]);
+				if (ImGui::Selectable(items[n], is_selected))
+				{
+					currentItem = items[n];
+					lightType_ = static_cast<LightType>(n);
+				}
+				if (is_selected)
+				{
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
 	}
-	
+
 private:
 	/*GLuint CreateTexture(char const* Filename)
 	{
@@ -331,37 +333,68 @@ private:
 		const Uint8* keys = SDL_GetKeyboardState(NULL);
 		if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A])
 		{
-			camera.ProcessKeyboard(Camera_Movement::LEFT, dt.count());
+			camera_.ProcessKeyboard(Camera_Movement::LEFT, dt.count());
 		}
 
 		if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D])
 		{
-			camera.ProcessKeyboard(Camera_Movement::RIGHT, dt.count());
+			camera_.ProcessKeyboard(Camera_Movement::RIGHT, dt.count());
 		}
 
 		if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W])
 		{
-			camera.ProcessKeyboard(Camera_Movement::FORWARD, dt.count());
+			camera_.ProcessKeyboard(Camera_Movement::FORWARD, dt.count());
 		}
 
 		if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S])
 		{
-			camera.ProcessKeyboard(Camera_Movement::BACKWARD, dt.count());
+			camera_.ProcessKeyboard(Camera_Movement::BACKWARD, dt.count());
 		}
-
 	}
-	unsigned VAO = 0;
-	unsigned VBO = 0;
-	unsigned texture;
+	glm::vec3 cubePositions_[9] = {
+		glm::vec3(2.0f, 5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f, 3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f, 2.0f, -2.5f),
+		glm::vec3(1.5f, 0.2f, -1.5f),
+		glm::vec3(-1.3f, 1.0f, -1.5f)
+	};
 
-	Shader shader;
+	enum class LightType
+	{
+		DIRECTIONNAL = 0,
+		POINT = 1,
+		FLASHLIGHT = 2,
+		SPOTLIGHT = 3,
+		NONE = 4
+	};
+
+	LightType lightType_ = LightType::NONE;
 	
-	Camera camera;
-	bool firstMouse = true;
+	float timeSince_ = 800.0f;
+	
+	glm::vec3 lightPosition_ = glm::vec3(0.5f, 0.5f, 0.5f);
+	glm::vec3 lightDirection_ = glm::vec3(-0.2f, -1.0f, -0.3f);
+
+	Texture textureDiffuse_;
+	Texture textureSpecular_;
+
+	Shader shader_;
+	Shader shaderLight_;
+
+	RenderCube cube_;
+	RenderCube lightCube_;
+
+	Camera camera_;
+	bool firstMouse_ = true;
+	bool rightMouse_ = false;
 	float lastX;
 	float lastY;
-	float width = 800.0f;
-	float height = 600.0f;
+	float width_ = 800.0f;
+	float height_ = 600.0f;
 };
 
 int main(int argc, char** argv)

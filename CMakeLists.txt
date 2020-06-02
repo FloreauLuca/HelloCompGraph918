@@ -28,6 +28,10 @@ target_link_libraries(COMMON PUBLIC imgui::imgui)
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(COMMON PUBLIC glm)
 
+find_package(GLUT REQUIRED)
+target_link_libraries(COMMON PUBLIC GLUT::GLUT)
+
+
 #Compile and copy shaders
 if(MSVC)
     if (${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "AMD64")
@@ -44,7 +48,7 @@ IF(NOT GLSL_VALIDATOR_FOUND)
     MESSAGE(FATAL_ERROR "Please install VulkanSDK and put it in path (current path: $ENV{VULKAN_SDK})")
 ENDIF()
 
-file(GLOB_RECURSE shader_files shaders/*.vert shaders/*.frag)
+file(GLOB_RECURSE shader_files shaders/*.vert shaders/*.frag shaders/*.geom)
 file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/shaders")
 foreach(SHADER ${shader_files})
     get_filename_component(FILE_NAME ${SHADER} NAME)
@@ -68,39 +72,14 @@ add_custom_target(
         ShaderTarget
         DEPENDS ${SHADER_BINARY_FILES} ${shader_files})
 		
-file(GLOB_RECURSE data_files data/*)
-file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/data")
-foreach(DATA ${data_files})
-    get_filename_component(FILE_NAME ${DATA} NAME)
-    get_filename_component(PATH_NAME ${DATA} DIRECTORY)
-    get_filename_component(EXTENSION ${DATA} EXT)
-    file(RELATIVE_PATH PATH_NAME "${PROJECT_SOURCE_DIR}" ${PATH_NAME})
-    set(DATA_OUTPUT "${PROJECT_BINARY_DIR}/${PATH_NAME}/${FILE_NAME}")
-
-    add_custom_command(
-            OUTPUT ${DATA_OUTPUT}
-            DEPENDS ${DATA}
-            DEPENDS
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/${PATH_NAME}"
-            COMMAND ${CMAKE_COMMAND} -E copy ${DATA} "${DATA_OUTPUT}"
-    )
-    list(APPEND DATA_BINARY_FILES ${DATA_OUTPUT})
-endforeach(DATA)
-
-add_custom_target(
-        DataTarget
-        DEPENDS ${DATA_BINARY_FILES} ${data_files})
-
 file(GLOB main_projects "main/*.cpp")
 
 foreach(main_project_path ${main_projects} )
     # I used a simple string replace, to cut off .cpp.
     get_filename_component(main_project_name ${main_project_path} NAME_WLE )
     file(GLOB shader_files shaders/${main_project_name}/*)
-    file(GLOB data_files data/${main_project_name}/*)
     add_executable(${main_project_name} ${main_project_path} ${shader_files} ${data_files})
     target_link_libraries(${main_project_name} COMMON)
     add_dependencies(${main_project_name} ShaderTarget)
-    add_dependencies(${main_project_name} DataTarget)
 
 endforeach()

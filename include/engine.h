@@ -22,7 +22,7 @@ private:
     SDL_Window * window = nullptr;
     std::vector<RenderProgram*> programs;
     int windowWidth = 800;
-    int windowHeight = 800;
+    int windowHeight = 600;
     bool isRunning = true;
     SDL_GLContext glRenderContext;
 };

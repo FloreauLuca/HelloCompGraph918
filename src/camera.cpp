@@ -1,110 +1,85 @@
-////
-//// Created by unite on 12/05/2020.
-////
-//#include "shader.h"
-//
-//
-//#include <fstream>
-//#include <glm/gtc/type_ptr.hpp>
-//#include <iostream>
-//
-//Shader::Shader(const char* vertexPath, const char* fragmentPath)
-//{
-//    // 1. retrieve the vertex/fragment source code from filePath
-//    std::string vertexCode;
-//    std::string fragmentCode;
-//    std::ifstream vShaderFile;
-//    std::ifstream fShaderFile;
-//    // ensure ifstream objects can throw exceptions:
-//    vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-//    fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-//    try
-//    {
-//        // open files
-//        vShaderFile.open(vertexPath);
-//        fShaderFile.open(fragmentPath);
-//        std::stringstream vShaderStream, fShaderStream;
-//        // read file's buffer contents into streams
-//        vShaderStream << vShaderFile.rdbuf();
-//        fShaderStream << fShaderFile.rdbuf();
-//        // close file handlers
-//        vShaderFile.close();
-//        fShaderFile.close();
-//        // convert stream into string
-//        vertexCode = vShaderStream.str();
-//        fragmentCode = fShaderStream.str();
-//    }
-//    catch (std::ifstream::failure e)
-//    {
-//        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
-//    }
-//    const char* vShaderCode = vertexCode.c_str();
-//    const char* fShaderCode = fragmentCode.c_str();
-//
-//    // 2. compile shaders
-//    unsigned int vertex, fragment;
-//    int success;
-//    char infoLog[512];
-//
-//    // vertex Shader
-//    vertex = glCreateShader(GL_VERTEX_SHADER);
-//    glShaderSource(vertex, 1, &vShaderCode, NULL); // shader, count, data, length
-//    glCompileShader(vertex);
-//    // print compile errors if any
-//    glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-//    if (!success)
-//    {
-//        glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-//        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-//    };
-//
-//    // vertex Shader
-//    fragment = glCreateShader(GL_FRAGMENT_SHADER);
-//    glShaderSource(fragment, 1, &fShaderCode, NULL);  // shader, count, data, length
-//    glCompileShader(fragment);
-//    // print compile errors if any
-//    glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-//    if (!success)
-//    {
-//        glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-//        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-//    };
-//    // shader Program
-//    ID = glCreateProgram();
-//    glAttachShader(ID, vertex);
-//    glAttachShader(ID, fragment);
-//    glLinkProgram(ID);
-//    // print linking errors if any
-//    glGetProgramiv(ID, GL_LINK_STATUS, &success);
-//    if (!success)
-//    {
-//        glGetProgramInfoLog(ID, 512, NULL, infoLog);
-//        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-//    }
-//
-//    // delete the shaders as they're linked into our program now and no longer necessery
-//    glDeleteShader(vertex);
-//    glDeleteShader(fragment);
-//}
-//
-//void Shader::use()
-//{
-//    glUseProgram(ID);
-//}
-//
-//void Shader::SetBool(const std::string& name, bool value) const
-//{
-//    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
-//}
-//void Shader::SetInt(const std::string& name, int value) const
-//{
-//    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
-//}
-//void Shader::SetFloat(const std::string& name, float value) const
-//{
-//    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
-//}
-//
-//void Shader::SetMat4(const std::string& name, glm::mat4 value) const {
-//    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
-//}
+#include "camera.h"
+
+Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+{
+    Position = position;
+    WorldUp = up;
+    Yaw = yaw;
+    Pitch = pitch;
+    UpdateCameraVectors();
+}
+// constructor with scalar values
+Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+{
+    Position = glm::vec3(posX, posY, posZ);
+    WorldUp = glm::vec3(upX, upY, upZ);
+    Yaw = yaw;
+    Pitch = pitch;
+    UpdateCameraVectors();
+}
+
+// returns the view matrix calculated using Euler Angles and the LookAt Matrix
+glm::mat4 Camera::GetViewMatrix()
+{
+    return glm::lookAt(Position, Position + Front, Up);
+}
+
+// processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
+void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
+{
+    float velocity = MovementSpeed * deltaTime;
+    if (direction == FORWARD)
+        Position += Front * velocity;
+    if (direction == BACKWARD)
+        Position -= Front * velocity;
+    if (direction == LEFT)
+        Position -= Right * velocity;
+    if (direction == RIGHT)
+        Position += Right * velocity;
+    UpdateCameraVectors();
+}
+
+// processes input received from a mouse input system. Expects the offset value in both the x and y direction.
+void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch)
+{
+    xoffset *= MouseSensitivity;
+    yoffset *= MouseSensitivity;
+
+    Yaw += xoffset;
+    Pitch += yoffset;
+
+    // make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (constrainPitch)
+    {
+        if (Pitch > 89.0f)
+            Pitch = 89.0f;
+        if (Pitch < -89.0f)
+            Pitch = -89.0f;
+    }
+
+    // update Front, Right and Up Vectors using the updated Euler angles
+    UpdateCameraVectors();
+}
+
+// processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
+void Camera::ProcessMouseScroll(float yoffset)
+{
+    Zoom -= (float)yoffset;
+    if (Zoom < 1.0f)
+        Zoom = 1.0f;
+    if (Zoom > 45.0f)
+        Zoom = 45.0f;
+}
+
+void Camera::UpdateCameraVectors()
+{
+    // calculate the new Front vector
+    glm::vec3 front;
+    front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+    front.y = sin(glm::radians(Pitch));
+    front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+    Front = glm::normalize(front);
+    // also re-calculate the Right and Up vector
+    Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+    Up = glm::normalize(glm::cross(Right, Front));
+}
