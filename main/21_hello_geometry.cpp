@@ -83,7 +83,7 @@ public:
 		shaderProgram = glCreateProgram();
 		glAttachShader(shaderProgram, vertexShader);
 		glAttachShader(shaderProgram, fragmentShader);
-		glAttachShader(shaderProgram, geometryShader);
+		//glAttachShader(shaderProgram, geometryShader);
 		glLinkProgram(shaderProgram);
 		glUseProgram(shaderProgram);
 

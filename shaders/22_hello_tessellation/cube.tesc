@@ -13,12 +13,12 @@ void main()
    {
        float tessLevel = 5.0;
 
-       gl_TessLevelInner[0] = tessLevel;
-       gl_TessLevelInner[1] = tessLevel;
+       gl_TessLevelInner[0] = 3.0;
+       gl_TessLevelInner[1] = 5.0;
 
-       gl_TessLevelOuter[0] = tessLevel;
-       gl_TessLevelOuter[1] = tessLevel;
-       gl_TessLevelOuter[2] = tessLevel;
-       gl_TessLevelOuter[3] = tessLevel;
+       gl_TessLevelOuter[0] = 8.0;
+       gl_TessLevelOuter[1] = 5.0;
+       gl_TessLevelOuter[2] = 3.0;
+       gl_TessLevelOuter[3] = 1.0;
    }
 }

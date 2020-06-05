@@ -48,7 +48,7 @@ IF(NOT GLSL_VALIDATOR_FOUND)
     MESSAGE(FATAL_ERROR "Please install VulkanSDK and put it in path (current path: $ENV{VULKAN_SDK})")
 ENDIF()
 
-file(GLOB_RECURSE shader_files shaders/*.vert shaders/*.frag shaders/*.geom)
+file(GLOB_RECURSE shader_files shaders/*.vert shaders/*.frag shaders/*.geom shaders/*.tese shaders/*.tesc)
 file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/shaders")
 foreach(SHADER ${shader_files})
     get_filename_component(FILE_NAME ${SHADER} NAME)

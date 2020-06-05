@@ -16,13 +16,13 @@ public:
 private:
     // model data
     std::vector<Mesh> meshes;
-    std::vector<Texture> textures_loaded;
+    std::vector<TextureMesh> textures_loaded;
     std::string directory;
 
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
     unsigned int TextureFromFile(const char* path, const std::string& directory);
-    std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type,
+    std::vector<TextureMesh> loadMaterialTextures(aiMaterial* mat, aiTextureType type,
                                               std::string typeName);
 };
 #endif

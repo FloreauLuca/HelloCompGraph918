@@ -17,7 +17,7 @@ struct Vertex
 	glm::vec3 Bitangent;
 };
 
-struct Texture
+struct TextureMesh
 {
 	unsigned int id;
 	std::string type;
@@ -30,10 +30,10 @@ public:
 	// mesh data
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<Texture> textures;
+	std::vector<TextureMesh> textures;
 
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
-	     std::vector<Texture> textures);
+	     std::vector<TextureMesh> textures);
 	void Draw(Shader shader);
 private:
 	//  render data

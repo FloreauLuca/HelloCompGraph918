@@ -113,10 +113,10 @@ public:
 		indices.push_back(2);
 		indices.push_back(3);
 
-		vertices.push_back(glm::vec3(-10.0f, 0.0f, -10.0f));
-		vertices.push_back(glm::vec3(10.0f, 0.0f, -10.0f));
-		vertices.push_back(glm::vec3(10.0f, 0.0f, 10.0f));
-		vertices.push_back(glm::vec3(-10.0f, 0.0f, 10.0f));
+		vertices.push_back(glm::vec3(-0.5f, 0.0f, -0.5f));
+		vertices.push_back(glm::vec3(0.5f, 0.0f, -0.5f));
+		vertices.push_back(glm::vec3(0.5f, 0.0f, 0.5f));
+		vertices.push_back(glm::vec3(-0.5f, 0.0f, 0.5f));
 
 		// VAO
 		glGenVertexArrays(1, &VAO);
@@ -125,12 +125,13 @@ public:
 		// program
 
 		// mvp uniform
-		matrix = glGetUniformLocation(shaderProgram, "mvp");
+		//matrix = glGetUniformLocation(shaderProgram, "mvp");
 
 		// Vertex Buffer
 		glGenBuffers(1, &VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 		// Element Buffer
 		glGenBuffers(1, &EBO);
@@ -147,15 +148,11 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(shaderProgram);
 
-		glUniformMatrix4fv(matrix, 1, GL_FALSE, &mvp[0][0]);
+		//glUniformMatrix4fv(matrix, 1, GL_FALSE, &mvp[0][0]);
 
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 		glPatchParameteri(GL_PATCH_VERTICES, 4);
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glDrawElements(GL_PATCHES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 	}
 
