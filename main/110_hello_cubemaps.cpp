@@ -32,15 +32,15 @@ public:
 		cube_.Init();
 		cubeMaps_.Init();
 		quadRed_.Init();
-		texture_.Init("../data/110_hello_cubemaps/leatherDiffuse.jpg");
+		texture_.Init("../data/110_hello_cubemaps/PenguinHead.png");
 		textureBlue_.Init("../data/110_hello_cubemaps/BlueBlend.png");
 		textureGreen_.Init("../data/110_hello_cubemaps/GreenBlend.png");
 		textureRed_.Init("../data/110_hello_cubemaps/RedBlend.png");
 
-		shaderCube_ = Shader("../shaders/110_hello_cubemaps/cube.vert",
-			"../shaders/110_hello_cubemaps/cube.frag");
-		shaderBlend_ = Shader("../shaders/110_hello_cubemaps/blend.vert",
-			"../shaders/110_hello_cubemaps/blend.frag");
+		shaderRefraction_ = Shader("../shaders/110_hello_cubemaps/cubeRefraction.vert",
+			"../shaders/110_hello_cubemaps/cubeRefraction.frag");
+		shaderReflection_ = Shader("../shaders/110_hello_cubemaps/cubeReflection.vert",
+			"../shaders/110_hello_cubemaps/cubeReflection.frag");
 		shaderCubeMaps_ = Shader("../shaders/110_hello_cubemaps/cubeMaps.vert",
 			"../shaders/110_hello_cubemaps/cubeMaps.frag");
 		cubeMapsTexture_ = LoadCubemap(cubeMapsPath_);
@@ -59,23 +59,23 @@ public:
 		for (int i = 0; i < 4; i++)
 		{
 			// don't forget to enable shader before setting uniforms
-			shaderCube_.Use();
-
-			cube_.BindVao();
-			shaderCube_.SetInt("ourTexture", 0);
+			shaderReflection_.Use();
+			shaderReflection_.SetInt("skybox", 0);
 			glActiveTexture(GL_TEXTURE0);
-			texture_.BindTexture();
+			glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapsTexture_);
+			shaderReflection_.SetVec3("cameraPos", camera_.Position);
+			cube_.BindVao();
 			// view/projection transformations
 			glm::mat4 projection = glm::perspective(glm::radians(camera_.Zoom), (float)width_ / (float)height_, 0.1f, 100.0f);
 			glm::mat4 view = camera_.GetViewMatrix();
-			shaderCube_.SetMat4("projection", projection);
-			shaderCube_.SetMat4("view", view);
-			shaderCube_.SetVec3("color", glm::vec3(0.2, 0.5, 0.5));
+			shaderReflection_.SetMat4("projection", projection);
+			shaderReflection_.SetMat4("view", view);
+			shaderReflection_.SetVec3("color", glm::vec3(0.2, 0.5, 0.5));
 
 			// render the loaded model
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePosition_[i]); // translate it down so it's at the center of the scene
-			shaderCube_.SetMat4("model", model);
+			shaderReflection_.SetMat4("model", model);
 			cube_.Render();
 			glBindVertexArray(0);
 
@@ -84,28 +84,24 @@ public:
 		for (int i = 0; i < 4; i++)
 		{
 			// don't forget to enable shader before setting uniforms
-			shaderBlend_.Use();
-
-			quadRed_.BindVao();
-			shaderBlend_.SetInt("ourTexture", i % 3);
+			shaderRefraction_.Use();
+			shaderRefraction_.SetInt("skybox", 0);
 			glActiveTexture(GL_TEXTURE0);
-			textureRed_.BindTexture();
-			glActiveTexture(GL_TEXTURE1);
-			textureBlue_.BindTexture();
-			glActiveTexture(GL_TEXTURE2);
-			textureGreen_.BindTexture();
+			glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapsTexture_);
+			shaderRefraction_.SetVec3("cameraPos", camera_.Position);
+			quadRed_.BindVao();
 			 //view/projection transformations
 			glm::mat4 projection = glm::perspective(glm::radians(camera_.Zoom), (float)width_ / (float)height_, 0.1f, 100.0f);
 			glm::mat4 view = camera_.GetViewMatrix();
-			shaderBlend_.SetMat4("projection", projection);
-			shaderBlend_.SetMat4("view", view);
-			shaderBlend_.SetVec3("color", glm::vec3(0.2, 0.5, 0.5));
+			shaderRefraction_.SetMat4("projection", projection);
+			shaderRefraction_.SetMat4("view", view);
+			shaderRefraction_.SetVec3("color", glm::vec3(0.2, 0.2, 0.5));
 
 			// render the loaded model
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, quadPosition_[i]); // translate it down so it's at the center of the scene
 			model = glm::rotate(model, i * glm::half_pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f));
-			shaderBlend_.SetMat4("model", model);
+			shaderRefraction_.SetMat4("model", model);
 			quadRed_.Render();
 			glBindVertexArray(0);
 
@@ -130,8 +126,8 @@ public:
 
 	void Destroy() override
 	{
-		shaderCube_.Destroy();
-		shaderBlend_.Destroy();
+		shaderRefraction_.Destroy();
+		shaderReflection_.Destroy();
 		shaderCubeMaps_.Destroy();
 		cube_.Destroy();
 		quadRed_.Destroy();
@@ -267,8 +263,8 @@ private:
 		glm::vec3(2.0f, 0.0f, 0.0f)
 	};
 
-	Shader shaderCube_;
-	Shader shaderBlend_;
+	Shader shaderRefraction_;
+	Shader shaderReflection_;
 	Shader shaderCubeMaps_;
 
 	RenderCube cube_;
@@ -277,12 +273,12 @@ private:
 	unsigned cubeMapsTexture_;
 	std::vector<std::string> cubeMapsPath_=
 	{
-		"../data/110_hello_cubemaps/wild/posx.jpg",
-		"../data/110_hello_cubemaps/wild/negx.jpg",
-		"../data/110_hello_cubemaps/wild/posy.jpg",
-		"../data/110_hello_cubemaps/wild/negy.jpg",
-		"../data/110_hello_cubemaps/wild/posz.jpg",
-		"../data/110_hello_cubemaps/wild/negz.jpg",
+		"../data/110_hello_cubemaps/stairs/posx.jpg",
+		"../data/110_hello_cubemaps/stairs/negx.jpg",
+		"../data/110_hello_cubemaps/stairs/posy.jpg",
+		"../data/110_hello_cubemaps/stairs/negy.jpg",
+		"../data/110_hello_cubemaps/stairs/posz.jpg",
+		"../data/110_hello_cubemaps/stairs/negz.jpg",
 	};
 
 	Camera camera_;
