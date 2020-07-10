@@ -17,8 +17,6 @@ struct Material {
     float     shininess;
 }; 
   
-
-
 in vec3 FragPos;  
 in vec3 Normal;
 in vec2 TexCoord;
