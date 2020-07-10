@@ -29,7 +29,7 @@ public:
 	{
 		cube_.Init();
 		cubeOutline_.Init();
-		texture_.Init("../data/17_hello_stencil/leatherDiffuse.jpg");
+		texture_.Init("../data/materials/leatherDiffuse.jpg");
 
 		shaderCube_ = Shader("../shaders/17_hello_stencil/cube.vert",
 		                "../shaders/17_hello_stencil/cube.frag");

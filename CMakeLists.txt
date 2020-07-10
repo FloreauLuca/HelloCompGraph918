@@ -6,6 +6,7 @@ file(GLOB_RECURSE COMMON_SRC include/*.h src/*.cpp)
 add_library(COMMON STATIC ${COMMON_SRC})
 target_include_directories(COMMON PUBLIC "include/")
 target_compile_definitions(COMMON PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLEW)
+target_compile_definitions(COMMON PUBLIC BUILD_WITH_EASY_PROFILER=1)
 
 find_package(SDL2 CONFIG REQUIRED)
 target_link_libraries(COMMON PUBLIC SDL2::SDL2 SDL2::SDL2main)
@@ -30,6 +31,9 @@ target_link_libraries(COMMON PUBLIC glm)
 
 find_package(GLUT REQUIRED)
 target_link_libraries(COMMON PUBLIC GLUT::GLUT)
+
+find_package(easy_profiler REQUIRED)  # STEP 1 #########################
+target_link_libraries(COMMON PUBLIC easy_profiler)  # STEP 2 ##########
 
 
 #Compile and copy shaders

@@ -1,14 +1,13 @@
 //
 // Created by unite on 12/05/2020.
 //
-
 #include <fstream>
 
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "shader.h"
+#include <shader.h>
 
 unsigned InitTexture() {
     float vertices[] = {
@@ -125,10 +124,12 @@ int main(int argc, char** argv)
         return -1;
     }
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    Shader ourShader("../shaders/11_hello_shader/triangle.vert", "../shaders/11_hello_shader/triangle.frag");
+
+    Shader ourShader;
+    ourShader = Shader("../shaders/11_hello_shader/triangle.vert", "../shaders/11_hello_shader/triangle.frag");
 
     unsigned VAO = InitTexture();
-    while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(window))
     {
         // input
         processInput(window);

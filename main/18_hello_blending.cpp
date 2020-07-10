@@ -30,10 +30,10 @@ public:
 		cube_.Init();
 		cubeOutline_.Init();
 		quadRed_.Init();
-		texture_.Init("../data/18_hello_blending/PenguinHead.png");
-		textureBlue_.Init("../data/18_hello_blending/BlueBlend.png");
-		textureGreen_.Init("../data/18_hello_blending/GreenBlend.png");
-		textureRed_.Init("../data/18_hello_blending/RedBlend.png");
+		texture_.Init("../data/images/PenguinHead.png");
+		textureBlue_.Init("../data/images/BlueBlend.png");
+		textureGreen_.Init("../data/images/GreenBlend.png");
+		textureRed_.Init("../data/images/RedBlend.png");
 
 		shaderCube_ = Shader("../shaders/18_hello_blending/cube.vert",
 			"../shaders/18_hello_blending/cube.frag");
@@ -269,9 +269,9 @@ private:
 	glm::vec3 quadPosition_[4] =
 	{
 		glm::vec3(0.0f, 0.0f, -2.0f),
-		glm::vec3(2.0f, 0.0f, 0.0f),
+		glm::vec3(-2.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, 2.0f),
-		glm::vec3(-2.0f, 0.0f, 0.0f)
+		glm::vec3(2.0f, 0.0f, 0.0f),
 	};
 	
 	Shader shaderOutline_;

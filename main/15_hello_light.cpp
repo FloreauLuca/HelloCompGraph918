@@ -30,8 +30,8 @@ public:
 		//texture = CreateTexture("../data/image.dds");
 		cube_.Init();
 		lightCube_.Init();
-		textureDiffuse_.Init("../data/15_hello_light/leatherDiffuse.jpg");
-		textureSpecular_.Init("../data/15_hello_light/leatherSpecular.jpg");
+		textureDiffuse_.Init("../data/materials/leatherDiffuse.jpg");
+		textureSpecular_.Init("../data/materials/leatherSpecular.jpg");
 
 		shader_ = Shader("../shaders/15_hello_light/cube.vert",
 		                "../shaders/15_hello_light/cube.frag");

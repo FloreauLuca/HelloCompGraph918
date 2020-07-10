@@ -1,9 +1,15 @@
 #include "shader.h"
 
-
 #include <fstream>
 #include <sstream>
+
+//#define GLAD
+#ifdef GLAD
+#include <glad.h>
+#else
 #include <GL/glew.h>
+#endif
+
 #include <iostream>
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)

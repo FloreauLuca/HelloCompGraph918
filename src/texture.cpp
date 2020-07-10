@@ -64,4 +64,5 @@ void Texture::Render()
 
 void Texture::Destroy()
 {
+	glDeleteTextures(1, &texture);
 }

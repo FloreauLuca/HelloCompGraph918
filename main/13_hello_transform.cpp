@@ -70,7 +70,7 @@ unsigned InitTexture(unsigned& texture) {
     // load and generate the texture
     stbi_set_flip_vertically_on_load(true);
     int width, height, nrChannels;
-    unsigned char* data = stbi_load("../data/12_hello_texture/texture.jpg", &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load("../data/images/texture.jpg", &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);//type, level, internalFormat, width, height, border, format, type, data

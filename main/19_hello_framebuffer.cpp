@@ -31,10 +31,10 @@ public:
 		cubeOutline_.Init();
 		quadRed_.Init();
 		screen_.Init();
-		texture_.Init("../data/19_hello_framebuffer/leatherDiffuse.jpg");
-		textureBlue_.Init("../data/19_hello_framebuffer/BlueBlend.png");
-		textureGreen_.Init("../data/19_hello_framebuffer/GreenBlend.png");
-		textureRed_.Init("../data/19_hello_framebuffer/RedBlend.png");
+		texture_.Init("../data/materials/leatherDiffuse.jpg");
+		textureBlue_.Init("../data/images/BlueBlend.png");
+		textureGreen_.Init("../data/images/GreenBlend.png");
+		textureRed_.Init("../data/images/RedBlend.png");
 
 		shaderCube_ = Shader("../shaders/19_hello_framebuffer/cube.vert",
 			"../shaders/19_hello_framebuffer/cube.frag");

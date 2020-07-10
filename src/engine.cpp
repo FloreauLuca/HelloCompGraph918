@@ -8,6 +8,8 @@
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_opengl3.h>
 
+#include "easy/profiler.h"
+
 void Engine::Init()
 {
     SDL_Init(SDL_INIT_VIDEO);
@@ -71,7 +73,9 @@ void Engine::StartLoop()
         const auto dt = std::chrono::duration_cast<seconds>(current - start);
         start = current;
 
+        EASY_BLOCK("Engine Update", profiler::colors::White)
         Update(dt);
+        EASY_END_BLOCK;
     }
     Destroy();
 }

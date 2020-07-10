@@ -36,6 +36,7 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
         Position -= Right * velocity;
     if (direction == RIGHT)
         Position += Right * velocity;
+	
     UpdateCameraVectors();
 }
 

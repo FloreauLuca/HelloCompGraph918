@@ -34,7 +34,7 @@ public:
 		shaderCube_ = Shader("../shaders/16_hello_model/cube.vert",
 			"../shaders/16_hello_model/cube.frag");
 		
-		model_.loadModel("../data/16_hello_model/enemy.obj");
+		model_.loadModel("../data/models/enemy.obj");
 	}
 
 	void Update(seconds dt) override

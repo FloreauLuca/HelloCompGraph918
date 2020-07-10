@@ -32,10 +32,10 @@ public:
 		cube_.Init();
 		cubeMaps_.Init();
 		quadRed_.Init();
-		texture_.Init("../data/110_hello_cubemaps/PenguinHead.png");
-		textureBlue_.Init("../data/110_hello_cubemaps/BlueBlend.png");
-		textureGreen_.Init("../data/110_hello_cubemaps/GreenBlend.png");
-		textureRed_.Init("../data/110_hello_cubemaps/RedBlend.png");
+		texture_.Init("../data/images/PenguinHead.png");
+		textureBlue_.Init("../data/images/BlueBlend.png");
+		textureGreen_.Init("../data/images/GreenBlend.png");
+		textureRed_.Init("../data/images/RedBlend.png");
 
 		shaderRefraction_ = Shader("../shaders/110_hello_cubemaps/cubeRefraction.vert",
 			"../shaders/110_hello_cubemaps/cubeRefraction.frag");
@@ -221,6 +221,61 @@ private:
 
 		return textureID;
 	}
+//
+//	void GenerateCubemap()
+//	{
+//#ifdef EASY_PROFILE_USE
+//		EASY_BLOCK("Generate Cubemap");
+//#endif
+//		glGenTextures(1, &envCubemap_);
+//		glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap_);
+//		for (unsigned int i = 0; i < 6; ++i)
+//		{
+//			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+//		}
+//		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+//		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+//		glCheckError();
+//
+//		glBindRenderbuffer(GL_RENDERBUFFER, captureRbo_);
+//		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 512, 512);
+//		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRbo_);
+//		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X, envCubemap_, 0);
+//		glCheckError();
+//
+//		Camera3D captureCamera;
+//		captureCamera.position = Vec3f::zero;
+//		captureCamera.aspect = 1.0f;
+//		captureCamera.fovY = degree_t(90.0f);
+//		captureCamera.nearPlane = 0.1f;
+//		captureCamera.farPlane = 10.0f;
+//
+//
+//		equiToCubemap_.Bind();
+//		equiToCubemap_.SetTexture("equirectangularMap", hdrTexture_, 0);
+//		equiToCubemap_.SetMat4("projection", captureCamera.GenerateProjectionMatrix());
+//		glViewport(0, 0, 512, 512);
+//		glBindFramebuffer(GL_FRAMEBUFFER, captureFbo_);
+//		for (unsigned int i = 0; i < 6; ++i)
+//		{
+//			captureCamera.WorldLookAt(viewDirs[i], upDirs[i]);
+//			equiToCubemap_.SetMat4("view", captureCamera.GenerateViewMatrix());
+//			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap_, 0);
+//			glCheckFramebuffer();
+//			glCheckError();
+//			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//
+//			skybox_.Draw();
+//		}
+//
+//
+//		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//	}
+
 	
 	void ProcessInput(seconds dt)
 	{
@@ -273,12 +328,12 @@ private:
 	unsigned cubeMapsTexture_;
 	std::vector<std::string> cubeMapsPath_=
 	{
-		"../data/110_hello_cubemaps/stairs/posx.jpg",
-		"../data/110_hello_cubemaps/stairs/negx.jpg",
-		"../data/110_hello_cubemaps/stairs/posy.jpg",
-		"../data/110_hello_cubemaps/stairs/negy.jpg",
-		"../data/110_hello_cubemaps/stairs/posz.jpg",
-		"../data/110_hello_cubemaps/stairs/negz.jpg",
+		"../data/cubemaps/stairs/posx.jpg",
+		"../data/cubemaps/stairs/negx.jpg",
+		"../data/cubemaps/stairs/posy.jpg",
+		"../data/cubemaps/stairs/negy.jpg",
+		"../data/cubemaps/stairs/posz.jpg",
+		"../data/cubemaps/stairs/negz.jpg",
 	};
 
 	Camera camera_;
@@ -289,6 +344,7 @@ private:
 	float width_ = 800.0f;
 	float height_ = 600.0f;
 
+	unsigned envCubemap_ = 0;
 	Texture texture_;
 	Texture textureRed_;
 	Texture textureBlue_;

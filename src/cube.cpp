@@ -8,6 +8,7 @@ RenderCube::RenderCube()
 void RenderCube::Init()
 {
 	float vertices[] = {
+		// positions     // texture Coords //normal
 		//Back
 		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f,
 		0.5f,  -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f,
@@ -99,7 +100,7 @@ RenderQuad::RenderQuad()
 void RenderQuad::Init()
 {
 	float planeVertices[] = {
-		// positions          // texture Coords 
+		// positions          // texture Coords //normal
 		 1.0f,  1.0f, 0.0f,   1.0f, 1.0f,   0.0f, 0.0f, 1.0f,
 		 1.0f, -1.0f, 0.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f,
 		-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,   0.0f, 0.0f, 1.0f,

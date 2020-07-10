@@ -250,7 +250,7 @@ int main(int argc, char** argv)
     //ConvertToDds("../data/12_hello_texture/texture.dds", "../data/12_hello_texture/textureConverted");
     unsigned texture;
     unsigned VAO = InitTexture(texture);
-    texture = CreateTexture("../data/image.dds");
+    texture = CreateTexture("../data/images/image.dds");
     while (!glfwWindowShouldClose(window))
     {
         // input

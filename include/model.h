@@ -13,9 +13,9 @@ class Model
 public:
     void loadModel(std::string path);
     void Draw(Shader shader);
-private:
     // model data
     std::vector<Mesh> meshes;
+private:
     std::vector<TextureMesh> textures_loaded;
     std::string directory;
 
